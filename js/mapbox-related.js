@@ -53,14 +53,15 @@ function buildLocationList(classmates) {
     link.innerHTML = `${classmate.properties.name}`;
 
     const details = listing.appendChild(document.createElement('div'));
-    if (classmate.properties.city != null) {
-      details.innerHTML = `${classmate.properties.city}`;
+    details.innerHTML = '<p style="font-size:12px;color:black;margin:0;line-height:1;"></p>'
+    if (classmate.properties.city != "NA") {
+      details.innerHTML += `${classmate.properties.city}`;
     } else {
-      details.innerHTML = `未知`;
+      details.innerHTML += `&#128557 还是去问问本人吧`;
     }
-
+    details.innerHTML +='</p>'
     if (classmate.properties.modified_date) {
-      details.innerHTML += `<p style="font-size:12px;color:gray">最后更新于: ${classmate.properties.modified_date}</p>`;
+      details.innerHTML += `<p style="font-size:12px;color:gray;margin:0;line-height:1;">最后更新于: ${classmate.properties.modified_date}</p>`;
     }
 
     link.addEventListener('click', function () {
@@ -82,7 +83,7 @@ function flyToCity(currentFeature) {
   map.flyTo({
     center: currentFeature.geometry.coordinates,
     zoom: 5
-  });
+  });   
 }
 function changeName() {
   for(i in name_data.features){
