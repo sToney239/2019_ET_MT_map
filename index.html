@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset='utf-8' />
+  <title>19 ET MT</title>
+
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='js/mapbox-gl.js'></script>
+  <script src='js/mapbox-gl-geocoder.min.js'></script>
+  <script src="js/pinyin-pro.js"></script>
+  <script src="js/mapbox-related.js"></script>
+  <script src='js/data.js'></script>
+  <link rel='stylesheet' href='css/mapbox-gl-geocoder.css' type='text/css' />
+  <link href='css/mapbox-gl.css' rel='stylesheet' />
+  <link href='css/main-map.css' rel='stylesheet' />
+
+</head>
+
+<body>
+
+  <div class='sidebar'>
+    <div class='heading'>
+      <h1 id="total">Our locations</h1>
+    </div>
+    <div id='listings' class='listings'></div>
+    <div class='footing' onclick="window.open('https://docs.qq.com/form/page/DUlZVamFWVEFKdHdS')"
+      style="cursor:pointer">
+      <a id="jump-link" href="https://docs.qq.com/form/page/DUlZVamFWVEFKdHdS"
+        style="color: #979797;font-size:15px;font-weight:800;">填一下收集表？ </a>
+    </div>
+  </div>
+
+  <div id='map'></div>
+
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic3RvLW5leSIsImEiOiJja25tZG5jNXYwcXBrMnFtcHFjaDlrMjZ4In0.JO5JsnrxhONEUjuIQxTldg';
+    
+    changeName();    
+    
+    var { pinyin } = pinyinPro;
+
+    var map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v11',
+      center: [115, 35],
+      //interactive: false,
+      zoom: 4
+    });
+    
+    var randQuest = questionsData[Math.floor(Math.random() * questionsData.length)].id;
+    // var name = decodeURIComponent(escape(atob(questionsData[randQuest - 1].ques)));
+    var name = atou(questionsData[randQuest - 1].ques);
+    //var name = decodeURIComponent(escape(atob(questionsData[randQuest - 1].ques)));
+    const innerHtmlContent = `<div style="min-width: 800px;font-size: large;color : black;" >
+            <h4 class="h4Class" align="center"  id="qusetion-name" >${name} </h4> </div>`;
+    const divElement = document.createElement('div');
+    const buttonBox = document.createElement('div');
+    const inputText = document.createElement('div');
+    const changeBtn = document.createElement('button');
+    const assignBtn = document.createElement('button');
+    assignBtn.class = "btn btn-success btn-simple text-white";
+    changeBtn.class = "btn btn-success btn-simple text-white";
+    inputText.innerHTML = '<input type="text" id="question" name="question" align="center"><br><br>';
+    assignBtn.innerHTML = `适宜试？`;
+    changeBtn.innerHTML = `不适宜？`;
+    inputText.style.cssText = 'text-align: center;';
+    changeBtn.style.cssText = 'position: absolute;left: 65%; transform: translateX(-50%);';
+    assignBtn.style.cssText = 'position: absolute;left: 35%; transform: translateX(-50%);';
+    buttonBox.style.cssText = 'height: 25px;'
+    divElement.innerHTML = innerHtmlContent;
+    divElement.appendChild(inputText);
+    divElement.appendChild(changeBtn);
+    divElement.appendChild(assignBtn);
+    divElement.append(buttonBox);
+
+    assignBtn.addEventListener('click', (e) => {
+      if (validateQuestion()) {
+        popup.remove();
+        buildLocationList(name_data);
+        map.setLayoutProperty("circle-layer", 'visibility', 'visible');
+        map.setLayoutProperty("circle-city-labels", 'visibility', 'visible');
+        map.addControl(
+          new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            localGeocoder: dummy,
+            localGeocoderOnly: true,
+            externalGeocoder: localgeocoder,
+            setAutocomplete: true,
+            setFuzzyMatch: true,
+            zoom: 5,
+            placeholder: '试试人名搜索? (缩写也行的)',
+            mapboxgl: mapboxgl
+          })
+        );
+      } else {
+        alert("答案错误？或者尝试换一题？");
+      }
+    });
+    changeBtn.addEventListener('click', (e) => {
+      var selectedElement = document.getElementById("qusetion-name");
+      newQuestionsData = questionsData.filter((t) => {
+        return t.id != randQuest;
+      })
+      randQuest = newQuestionsData[Math.floor(Math.random() * newQuestionsData.length)].id;
+      //selectedElement.innerHTML = decodeURIComponent(escape(atob(questionsData.filter((t) => { return t.id == randQuest; })[0].ques)));
+      selectedElement.innerHTML = atou(questionsData.filter((t) => { return t.id == randQuest; })[0].ques);
+      popup.setDOMContent(divElement);
+    });
+
+    var viewcenter = (map.getBounds().toArray()[1][0] - map.getBounds().toArray()[0][0]) / 2 + map.getBounds().toArray()[0][0];
+    
+    const popup = new mapboxgl.Popup({ anchor: "center", closeOnClick: false, closeOnMove: false })
+      .setLngLat([viewcenter, map.getCenter().toArray()[1]])
+      .setDOMContent(divElement)
+      .setMaxWidth("1000px")
+      .addTo(map);
+
+
+    map.on('load', function () {
+      map.addSource('my-geojson', {
+        type: 'geojson',
+        data: name_data
+      });
+      
+
+      name_data.features.forEach(function (name_datai, i) {
+        name_datai.properties.id = i;
+      });
+      map.addLayer({
+        id: 'circle-layer',
+        type: 'circle',
+        source: 'my-geojson',
+        filter: [">", "n", 0],
+        paint: {
+          'circle-color': '#ffa661',
+          'circle-stroke-width': 0,
+          'circle-radius': [
+            'interpolate',
+            ['linear'],
+            ['get', 'n'],
+            1, 15,
+            10, 30
+          ],
+        },
+        layout: { 'visibility': 'none' }
+      });
+
+
+      map.addLayer({
+        id: 'circle-city-labels',
+        type: 'symbol',
+        source: 'my-geojson',
+        filter: [">", "n", 0],
+
+        layout: {
+          'text-field': '{city}',
+          'text-size': 14,
+          'text-offset': [0, 0],
+          'visibility': 'none'
+        },
+        paint: {
+          'text-color': '#000'
+        }
+      });
+    });
+
+    map.on('click', 'circle-layer', (e) => {
+      const coordinates = e.features[0].geometry.coordinates.slice();
+      while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
+        coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
+      }
+
+      var exact_city = e.features[0].properties.city;
+      var current_city = name_data.features.filter(function (e) { return e.properties.city == exact_city; });
+      
+      let positions = {
+         w1: -1,
+         w2: -1
+      };
+      current_city.forEach((city, index) => {
+        if (city.properties.name === "王颂洋") {
+          positions.w1 = index;
+        }
+        if (city.properties.name === "王晓昀") {
+          positions.w2 = index;
+        }
+      });
+      if (positions.w1 !== -1 && positions.w2 !== -1 && current_city.length > 2) {
+        if (positions.w1 > 0) {
+          let temp = current_city[positions.w1-1];
+          current_city[positions.w1-1] = current_city[positions.w1];
+          current_city[positions.w1] = temp;
+        } else {
+          let temp = current_city[positions.w2+1];
+          current_city[positions.w2+1] = current_city[positions.w2];
+          current_city[positions.w2] = temp;
+        };
+      };
+
+      var base_text = '<h1 style="text-align:center;margin:0;padding:8px 0 8px 0">' + current_city[0].properties.city + "<\h1>";
+
+      base_text += '<table>';
+      row_number = Math.ceil(current_city.length / 5);
+
+      for (j=0;j<row_number;j++) {
+          base_text += '<tr>';
+          for (i = 0; (j * 5 + i) < Math.min(current_city.length, (j+1) * 5); i++) {
+            base_text += '<td>' +
+              '<img src="pics/' + pinyin(current_city[(j * 5 + i)].properties.name, { toneType: 'none', v: "true" }).replace(/\s*/g, "").toLowerCase() +
+              '.jpg" alt="Local Image" width="85" height="85" /> ' +
+              '</td>';
+          }
+          base_text += '</tr>' + '<tr>';
+
+          for (i = 0; (j * 5 + i) < Math.min(current_city.length, (j+1) * 5); i++) {
+            base_text += '<th>' + current_city[(j * 5 + i)].properties.name + '</th>';
+          }
+          base_text += '</tr>' + '<tr>';
+          for (i = 0; (j * 5 + i) < Math.min(current_city.length, (j+1) * 5); i++) {
+            base_text += '<td style="color:gray;font-size:12px">' + '最后更新于:<br/>' + current_city[(j * 5 + i)].properties.modified_date + '</td>';
+          }
+          base_text += '</tr>';
+      }
+
+      base_text += '</table>';
+
+
+      new mapboxgl.Popup() 
+        .setLngLat(coordinates) 
+        .setHTML(base_text)
+        .setMaxWidth("1000px")
+        .addTo(map);
+    });
+
+    map.on('mouseenter', 'circle-layer', () => {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+
+    map.on('mouseleave', 'circle-layer', () => {
+      map.getCanvas().style.cursor = '';
+    });
+    
+
+  </script>
+</body>
+
+</html>
