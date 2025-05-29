@@ -60,15 +60,16 @@ function buildLocationList(classmates) {
     }
 
     if (classmate.properties.modified_date) {
-      details.innerHTML += `<p style="font-size:1px;color:gray">Last updated: ${classmate.properties.modified_date}</p>`;
+      details.innerHTML += `<p style="font-size:12px;color:gray">最后更新于: ${classmate.properties.modified_date}</p>`;
     }
 
     link.addEventListener('click', function () {
       for (const feature of classmates.features) {
         if (this.id === `link-${feature.properties.id}` & feature.properties.city != null) {
           flyToCity(feature);
-        }
+        };
       }
+      
       const activeItem = document.getElementsByClassName('active');
       if (activeItem[0]) {
         activeItem[0].classList.remove('active');
