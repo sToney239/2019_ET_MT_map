@@ -2,6 +2,61 @@ function dummy() {
   console.log('dummy');
   return [];
 }
+
+function popupText(current_city) {
+  let positions = {
+      w1: -1,
+      w2: -1
+  };
+  current_city.forEach((city, index) => {
+    if (city.properties.name === "王颂洋") {
+      positions.w1 = index;
+    }
+    if (city.properties.name === "王晓昀") {
+       positions.w2 = index;
+    }
+  });
+  if (positions.w1 !== -1 && positions.w2 !== -1 && current_city.length > 2) {
+    if (positions.w1 > 0) {
+      let temp = current_city[positions.w1-1];
+      current_city[positions.w1-1] = current_city[positions.w1];
+      current_city[positions.w1] = temp;
+      } else {
+        let temp = current_city[positions.w2+1];
+        current_city[positions.w2+1] = current_city[positions.w2];
+        current_city[positions.w2] = temp;
+      };
+    };
+
+    var base_text = '<h1 style="text-align:center;margin:0;padding:8px 0 8px 0">' + current_city[0].properties.city + "<\h1>";
+
+    base_text += '<table>';
+    row_number = Math.ceil(current_city.length / 5);
+
+    for (j=0;j<row_number;j++) {
+      base_text += '<tr>';
+      for (i = 0; (j * 5 + i) < Math.min(current_city.length, (j+1) * 5); i++) {
+        base_text += '<td>' +
+          '<img src="pics/' + pinyin(current_city[(j * 5 + i)].properties.name, { toneType: 'none', v: "true" }).replace(/\s*/g, "").toLowerCase() +
+          '.jpg" alt="Local Image" width="85" height="85" /> ' +
+          '</td>';
+      }
+      base_text += '</tr>' + '<tr>';
+
+      for (i = 0; (j * 5 + i) < Math.min(current_city.length, (j+1) * 5); i++) {
+        base_text += '<th>' + current_city[(j * 5 + i)].properties.name + '</th>';
+      }
+      base_text += '</tr>' + '<tr>';
+      for (i = 0; (j * 5 + i) < Math.min(current_city.length, (j+1) * 5); i++) {
+        base_text += '<td style="color:gray;font-size:12px">' + '最后更新于:<br/>' + current_city[(j * 5 + i)].properties.modified_date + '</td>';
+      }
+      base_text += '</tr>';
+  }
+
+  base_text += '</table>';
+  return base_text;
+}
+
 function localgeocoder(query) {
   var matchingFeatures = [];
   name_data.features.forEach(
@@ -67,7 +122,6 @@ function buildLocationList(classmates) {
     link.addEventListener('click', function () {
       for (const feature of classmates.features) {
         if (this.id === `link-${feature.properties.id}` & feature.properties.city != "NA") {
-          popup.remove();
           flyToCity(feature);
         };
       }
@@ -81,10 +135,23 @@ function buildLocationList(classmates) {
   }
 }
 function flyToCity(currentFeature) {
+  const popups = document.getElementsByClassName("mapboxgl-popup");
+  if (popups.length) {
+      popups[0].remove();
+  }
   map.flyTo({
     center: currentFeature.geometry.coordinates,
     zoom: 5
   });   
+  var current_city = name_data.features.filter(function (e) { return e.properties.city == currentFeature.properties.city; });
+  setTimeout(function () {
+    const popup = new mapboxgl.Popup() 
+      .setLngLat(currentFeature.geometry.coordinates) 
+      .setHTML(popupText(current_city))
+      .setMaxWidth("1000px")
+      .addTo(map);
+  }, 500);
+  
 }
 function changeName() {
   for(i in name_data.features){

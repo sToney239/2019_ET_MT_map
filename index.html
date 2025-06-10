@@ -184,61 +184,10 @@
       var exact_city = e.features[0].properties.city;
       var current_city = name_data.features.filter(function (e) { return e.properties.city == exact_city; });
       
-      let positions = {
-         w1: -1,
-         w2: -1
-      };
-      current_city.forEach((city, index) => {
-        if (city.properties.name === "王颂洋") {
-          positions.w1 = index;
-        }
-        if (city.properties.name === "王晓昀") {
-          positions.w2 = index;
-        }
-      });
-      if (positions.w1 !== -1 && positions.w2 !== -1 && current_city.length > 2) {
-        if (positions.w1 > 0) {
-          let temp = current_city[positions.w1-1];
-          current_city[positions.w1-1] = current_city[positions.w1];
-          current_city[positions.w1] = temp;
-        } else {
-          let temp = current_city[positions.w2+1];
-          current_city[positions.w2+1] = current_city[positions.w2];
-          current_city[positions.w2] = temp;
-        };
-      };
 
-      var base_text = '<h1 style="text-align:center;margin:0;padding:8px 0 8px 0">' + current_city[0].properties.city + "<\h1>";
-
-      base_text += '<table>';
-      row_number = Math.ceil(current_city.length / 5);
-
-      for (j=0;j<row_number;j++) {
-          base_text += '<tr>';
-          for (i = 0; (j * 5 + i) < Math.min(current_city.length, (j+1) * 5); i++) {
-            base_text += '<td>' +
-              '<img src="pics/' + pinyin(current_city[(j * 5 + i)].properties.name, { toneType: 'none', v: "true" }).replace(/\s*/g, "").toLowerCase() +
-              '.jpg" alt="Local Image" width="85" height="85" /> ' +
-              '</td>';
-          }
-          base_text += '</tr>' + '<tr>';
-
-          for (i = 0; (j * 5 + i) < Math.min(current_city.length, (j+1) * 5); i++) {
-            base_text += '<th>' + current_city[(j * 5 + i)].properties.name + '</th>';
-          }
-          base_text += '</tr>' + '<tr>';
-          for (i = 0; (j * 5 + i) < Math.min(current_city.length, (j+1) * 5); i++) {
-            base_text += '<td style="color:gray;font-size:12px">' + '最后更新于:<br/>' + current_city[(j * 5 + i)].properties.modified_date + '</td>';
-          }
-          base_text += '</tr>';
-      }
-
-      base_text += '</table>';
-
-
-      new mapboxgl.Popup() 
+      const popup = new mapboxgl.Popup() 
         .setLngLat(coordinates) 
-        .setHTML(base_text)
+        .setHTML(popupText(current_city))
         .setMaxWidth("1000px")
         .addTo(map);
     });
