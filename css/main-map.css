@@ -99,7 +99,7 @@ h1 {
 }
 
 @media (max-width: 600px) {
-    h1#total {
+    h1 {
         font-size: 17px; /* Smaller size for mobile devices */
         padding: 10px 2px;
     }
