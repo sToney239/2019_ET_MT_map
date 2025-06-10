@@ -85,7 +85,7 @@ body {
 body {
   color: #404040;
   font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', sans-serif;
-  margin: 0;
+  margin: 0; 
   padding: 0;
   -webkit-font-smoothing: antialiased;
 }
@@ -95,17 +95,33 @@ h1 {
   margin: 0;
   font-weight: 800;
   line-height: 20px;
-  padding: 2px 2px;
+  padding: 20px 2px;
 }
 
 @media (max-width: 600px) {
     h1 {
-        font-size: 1.8em; /* Smaller size for mobile devices */
+        font-size: 17px; /* Smaller size for mobile devices */
+        padding: 10px 2px;
     }
 }
 
-#jump-link {
-  padding: 0 4px;
+@media (max-width: 60px) {
+    a#jumplink {
+        font-size: 12px;
+        margin: 0;
+        padding: 10px 2px;
+        color: #979797;
+        font-weight:800;
+        padding: 0px 0px;
+    }
+}
+
+
+#jumplink {
+  color: #979797;
+  font-size:15px;
+  line-height: 1;
+  font-weight:800;
 }
 
 #total {
@@ -147,10 +163,10 @@ a:hover {
   background: #fff;
   border-top: 2px solid #eee;
   height: 40px;
-  line-height: 40px;
+  line-height: 10px;
   text-align: left;
   width: 100%;
-  padding: 0px 10px;
+  padding: 10px 10px;
 }
 
 .listings {
