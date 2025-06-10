@@ -66,7 +66,8 @@ function buildLocationList(classmates) {
 
     link.addEventListener('click', function () {
       for (const feature of classmates.features) {
-        if (this.id === `link-${feature.properties.id}` & feature.properties.city != null) {
+        if (this.id === `link-${feature.properties.id}` & feature.properties.city != "NA") {
+          popup.remove();
           flyToCity(feature);
         };
       }
