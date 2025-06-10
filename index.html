@@ -21,7 +21,7 @@
 
   <div class='sidebar'>
     <div class='heading'>
-      <h1>😋让我康康？</h1>
+      <h1 id="h1Title">😋让我康康？</h1>
     </div>
     <div id='listings' class='listings'></div>
     <div class='footing' onclick="window.open('https://docs.qq.com/form/page/DUlZVamFWVEFKdHdS')"
@@ -38,6 +38,11 @@
     changeName();    
     
     var { pinyin } = pinyinPro;
+
+    if (window.matchMedia("(max-width: 600px)").matches) {
+      document.getElementById('h1Title').innerText = "😋";
+      document.getElementById('jumplink').innerText = "收集表";
+    }
 
     var map = new mapboxgl.Map({
       container: 'map',
