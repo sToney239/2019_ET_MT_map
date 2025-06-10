@@ -120,7 +120,7 @@
 
     var viewcenter = (map.getBounds().toArray()[1][0] - map.getBounds().toArray()[0][0]) / 2 + map.getBounds().toArray()[0][0];
     
-    const popup = new mapboxgl.Popup({ anchor: "center", className:"questionBox", closeOnClick: false, closeOnMove: false })
+    const popup = new mapboxgl.Popup({ anchor: "center", className:"questionBox", closeOnClick: false, closeOnMove: true })
       .setLngLat([viewcenter, map.getCenter().toArray()[1]])
       .setDOMContent(divElement)
       .setMaxWidth("1000px")
