@@ -28,6 +28,48 @@ body {
   bottom: 0;
 }
 
+
+.questionBox {
+  opacity: 0.8
+}
+
+
+.buttonSubmit {
+  position: absolute;
+  left: 45%; 
+  border-radius: 16px;
+  border: none;
+  background-color: #55c2da;
+  color: white;
+  padding: 5px
+}
+
+.buttonSubmit:hover {background-color: #25859b}
+
+.buttonSubmit:active {
+  background-color: #25859b;
+  box-shadow: 0 2px #666;
+  transform: translateY(2px);
+}
+
+.buttonRefresh {
+  position: absolute;
+  left: 55%; 
+  border-radius: 16px;
+  border: none;
+  background-color: #dd7973;
+  color: white;
+  padding: 5px
+}
+
+.buttonRefresh:hover {background-color: #b13e38}
+
+.buttonRefresh:active {
+  background-color: #b13e38;
+  box-shadow: 0 2px #666;
+  transform: translateY(2px);
+}
+
 .mapboxgl-ctrl-geocoder {
   width: 300px !important;
 }

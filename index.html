@@ -59,22 +59,30 @@
     const inputText = document.createElement('div');
     const changeBtn = document.createElement('button');
     const assignBtn = document.createElement('button');
-    assignBtn.class = "btn btn-success btn-simple text-white";
-    changeBtn.class = "btn btn-success btn-simple text-white";
+    assignBtn.className  = "buttonSubmit";
+    changeBtn.className  = "buttonRefresh";
+    inputText.className  = "inputBox";
     inputText.innerHTML = '<input type="text" id="question" name="question" align="center"><br><br>';
-    assignBtn.innerHTML = `适宜试？`;
-    changeBtn.innerHTML = `不适宜？`;
+    assignBtn.innerHTML = `✔︎适宜试？`;
+    changeBtn.innerHTML = `↻不适宜？`;
     inputText.style.cssText = 'text-align: center;';
-    changeBtn.style.cssText = 'position: absolute;left: 65%; transform: translateX(-50%);';
-    assignBtn.style.cssText = 'position: absolute;left: 35%; transform: translateX(-50%);';
-    buttonBox.style.cssText = 'height: 25px;'
+    assignBtn.style.cssText = 'position: absolute;left: 40%; transform: translateX(-50%);border-radius: 16px;border: none;background-color: #55c2da;color: white;padding: 5px';
+    
+    
+    buttonBox.style.cssText = 'height: 25px;';
+	
     divElement.innerHTML = innerHtmlContent;
     divElement.appendChild(inputText);
     divElement.appendChild(changeBtn);
     divElement.appendChild(assignBtn);
     divElement.append(buttonBox);
+    divElement.querySelector(".inputBox").addEventListener("keyup", event => {
+      if(event.key !== "Enter") return; 
+      document.querySelector(".buttonSubmit").click();
+      event.preventDefault();
+    });
 
-    assignBtn.addEventListener('click', (e) => {
+    assignBtn.addEventListener('click', (e) => {  
       if (validateQuestion()) {
         popup.remove();
         buildLocationList(name_data);
@@ -110,7 +118,7 @@
 
     var viewcenter = (map.getBounds().toArray()[1][0] - map.getBounds().toArray()[0][0]) / 2 + map.getBounds().toArray()[0][0];
     
-    const popup = new mapboxgl.Popup({ anchor: "center", closeOnClick: false, closeOnMove: false })
+    const popup = new mapboxgl.Popup({ anchor: "center", className:"questionBox", closeOnClick: false, closeOnMove: false })
       .setLngLat([viewcenter, map.getCenter().toArray()[1]])
       .setDOMContent(divElement)
       .setMaxWidth("1000px")
