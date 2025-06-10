@@ -90,22 +90,18 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-@media (max-width: 768px) {
-    h1 {
-      font-size: 12px;
-      margin: 0;
-      font-weight: 800;
-      line-height: 20px;
-      padding: 2px 2px;
-  }
-}
-
 h1 {
   font-size: 22px;
   margin: 0;
   font-weight: 800;
   line-height: 20px;
   padding: 2px 2px;
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 1.8em; /* Smaller size for mobile devices */
+    }
 }
 
 #jump-link {
