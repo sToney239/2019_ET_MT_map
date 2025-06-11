@@ -56,6 +56,12 @@ function popupText(current_city) {
   base_text += '</table>';
   return base_text;
 }
+function clearPopups() {
+  const popups = document.getElementsByClassName("mapboxgl-popup");
+  if (popups.length) {
+    popups[0].remove();
+  }
+}
 
 function localgeocoder(query) {
   var matchingFeatures = [];
@@ -121,10 +127,24 @@ function buildLocationList(classmates) {
 
     link.addEventListener('click', function () {
       for (const feature of classmates.features) {
-        if (this.id === `link-${feature.properties.id}` & feature.properties.city != "NA") {
-          flyToCity(feature);
-        };
+        if (this.id === `link-${feature.properties.id}`) {
+          if (feature.properties.city != "NA") {
+            flyToCity(feature);
+          } else {
+            clearPopups()
+            const message = document.getElementById('message');
+            message.style.display = 'block';
+            message.style.opacity = 1;
+          
+            setTimeout(() => {
+              message.style.opacity = 0;
+              setTimeout(() => {
+                  message.style.display = 'none';
+              }, 800); // Wait for 800ms to complete fade-out
+            }, 500); // Show message for 500 ms
+          }
       }
+    }
       
       const activeItem = document.getElementsByClassName('active');
       if (activeItem[0]) {
@@ -135,13 +155,10 @@ function buildLocationList(classmates) {
   }
 }
 function flyToCity(currentFeature) {
-  const popups = document.getElementsByClassName("mapboxgl-popup");
-  if (popups.length) {
-      popups[0].remove();
-  }
+  clearPopups();
   map.flyTo({
     center: currentFeature.geometry.coordinates,
-    zoom: 5
+    zoom: 4
   });   
   var current_city = name_data.features.filter(function (e) { return e.properties.city == currentFeature.properties.city; });
   setTimeout(function () {

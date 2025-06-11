@@ -7,6 +7,20 @@ th {
   font-size: 15px;
 }
 
+#message {
+  display: none;
+  padding: 20px;
+  background-color: white;
+  color: black;
+  font-size: 20px;
+  border-radius: 5px;
+  width: 300px; 
+  text-align: center;
+  position: relative;
+  transition: opacity 2s ease-in-out;
+  opacity: 0;
+}
+
 td {
   padding: 6px;
   font-size: 0.1%;
@@ -17,6 +31,10 @@ td {
 body {
   margin: 0;
   padding: 0;
+  height: 100vh;
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
 }
 
 #map {
