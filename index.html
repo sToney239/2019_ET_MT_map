@@ -6,8 +6,9 @@
   <title>19 ET MT</title>
 
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
-  <script src='js/mapbox-gl.js'></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
   <script src='js/mapbox-gl-geocoder.min.js'></script>
+  <script src="https://cdn.jsdelivr.net/npm/mapbox-gl-animated-popup@v0.4.0/dist/mapbox-gl-animated-popup.min.js"></script>
   <script src="js/pinyin-pro.js"></script>
   <script src="js/map-fun.js"></script>
   <script src='js/data.js'></script>
@@ -39,6 +40,9 @@
       document.getElementById('h1Title').innerText = "😋";
       document.getElementById('jumplink').innerText = "收集表";
     }
+
+    let exact_city = null;
+    let popupStatus = 0;
     
     var map = new mapboxgl.Map({
       container: 'map',
@@ -151,15 +155,30 @@
       while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
         coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
       }
+      if (e.features[0].properties.city!=exact_city | popupStatus == 0) {
+        popupStatus = 1;
+        exact_city = e.features[0].properties.city;
+        var current_city = name_data.features.filter(function (e) { return e.properties.city == exact_city; });
 
-      var exact_city = e.features[0].properties.city;
-      var current_city = name_data.features.filter(function (e) { return e.properties.city == exact_city; });
-
-      const popup = new mapboxgl.Popup() 
-        .setLngLat(coordinates) 
-        .setHTML(popupText(current_city))
-        .setMaxWidth("1000px")
-        .addTo(map);
+        //const popup = new mapboxgl.Popup() 
+        var popup = new AnimatedPopup({
+          offset: 25,
+          openingAnimation: {
+              duration: 300,
+              easing: 'easeOutSine',
+              transform: 'scale'
+          },
+          closingAnimation: {
+              duration: 300,
+              easing: 'easeInSine',
+              transform: 'scale'
+          }}).setLngLat(coordinates) 
+          .setHTML(popupText(current_city))
+          .setMaxWidth("1000px")
+          .addTo(map);
+        } else {
+          popupStatus = 0;
+        }
     });
 
     map.on('mouseenter', 'circle-layer', () => {
