@@ -1,9 +1,3 @@
-function dummy() {
-  // console.log('dummy');
-  return [];
-}
-
-
 function popupText(current_city) {
   var { pinyin } = pinyinPro;
   let positions = {
@@ -240,7 +234,7 @@ function mapInitializeAfterQuiz() {
   map.setLayoutProperty("circle-city-labels", 'visibility', 'visible');
   const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
-      localGeocoder: dummy,
+      localGeocoder: e => { [] },
       localGeocoderOnly: true,
       externalGeocoder: localgeocoder,
       setAutocomplete: true,
@@ -251,7 +245,9 @@ function mapInitializeAfterQuiz() {
       placeholder: '试试人名搜索? (缩写也行的)',
       mapboxgl: mapboxgl
     });
+
   map.addControl(geocoder);
+
   geocoder.on('result', e1 => {
     if (e1.result.city != "NA") {
       clearPopups();
@@ -259,6 +255,8 @@ function mapInitializeAfterQuiz() {
         center: e1.result.geometry.coordinates,
         zoom: 4
       });   
+      exact_city = e1.result.city;
+      popupStatus = 1;
       var current_city = name_data.features.filter(function (e) { return e.properties.city == e1.result.city; });
       smoothPopup(e1.result.geometry.coordinates, current_city)
     } else {
