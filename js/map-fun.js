@@ -1,7 +1,8 @@
 function dummy() {
-  console.log('dummy');
+  // console.log('dummy');
   return [];
 }
+
 
 function popupText(current_city) {
   var { pinyin } = pinyinPro;
@@ -80,6 +81,7 @@ function localgeocoder(query) {
       if (pinyin(feature.properties.name, { toneType: 'none', pattern: 'first', v: "true" }).replace(/\s*/g, "").toLowerCase().
         search(pinyin(query, { toneType: 'none', pattern: 'first', v: "true" }).replace(/\s*/g, "").toLowerCase()) !== -1) {
         feature['place_name'] = feature.properties.name;
+        feature['city'] = feature.properties.city;
         feature['center'] = feature.geometry.coordinates;
         matchingFeatures.push(feature);
       }
@@ -137,7 +139,7 @@ function buildLocationList(classmates) {
           if (feature.properties.city != "NA") {
             flyToCity(feature);
           } else {
-            clearPopups()
+            clearPopups();
             const message = document.getElementById('message');
             message.style.display = 'block';
             message.style.opacity = 1;
@@ -230,19 +232,39 @@ function mapInitializeAfterQuiz() {
   buildLocationList(name_data);
   map.setLayoutProperty("circle-layer", 'visibility', 'visible');
   map.setLayoutProperty("circle-city-labels", 'visibility', 'visible');
-  map.addControl(
-    new MapboxGeocoder({
+  const geocoder = new MapboxGeocoder({
       accessToken: mapboxgl.accessToken,
       localGeocoder: dummy,
       localGeocoderOnly: true,
       externalGeocoder: localgeocoder,
       setAutocomplete: true,
       setFuzzyMatch: true,
-      zoom: 5,
+      marker:false,
+      zoom: 4,
       placeholder: '试试人名搜索? (缩写也行的)',
       mapboxgl: mapboxgl
-    })
-  );
-
+    });
+  map.addControl(geocoder);
+  geocoder.on('result', e => {
+    clearPopups();
+    popupStatus = 1;
+    // const popup = new mapboxgl.Popup() 
+    var current_city = name_data.features.filter(function (e2) { return e2.properties.city == e.result.city; });
+      new AnimatedPopup({
+        offset: 0,
+        openingAnimation: {
+            duration: 300,
+            easing: 'easeOutSine',
+            transform: 'scale'
+        },
+        closingAnimation: {
+            duration: 300,
+            easing: 'easeInSine',
+            transform: 'scale'
+        }}).setLngLat(e.result.geometry.coordinates)
+        .setHTML(popupText(current_city))
+        .setMaxWidth("1000px")
+        .addTo(map);
+    });
   
 }

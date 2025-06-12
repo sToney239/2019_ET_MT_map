@@ -43,7 +43,7 @@
 
     let exact_city = null;
     let popupStatus = 0;
-    
+
     var map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v11',
@@ -150,7 +150,7 @@
         }
       });
     });
-
+    // click on circle and pop-up
     map.on('click', 'circle-layer', (e) => {
       const coordinates = e.features[0].geometry.coordinates.slice();
       while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
@@ -189,6 +189,7 @@
     map.on('mouseleave', 'circle-layer', () => {
       map.getCanvas().style.cursor = '';
     });
+    
     
 
   </script>
