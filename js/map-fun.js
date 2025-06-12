@@ -169,8 +169,20 @@ function flyToCity(currentFeature) {
   });   
   var current_city = name_data.features.filter(function (e) { return e.properties.city == currentFeature.properties.city; });
   setTimeout(function () {
-    const popup = new mapboxgl.Popup() 
-      .setLngLat(currentFeature.geometry.coordinates) 
+    popupStatus = 0;
+    // const popup = new mapboxgl.Popup() 
+    var popup = new AnimatedPopup({
+      offset: 0,
+      openingAnimation: {
+          duration: 300,
+          easing: 'easeOutSine',
+          transform: 'scale'
+      },
+      closingAnimation: {
+          duration: 300,
+          easing: 'easeInSine',
+          transform: 'scale'
+      }}).setLngLat(currentFeature.geometry.coordinates) 
       .setHTML(popupText(current_city))
       .setMaxWidth("1000px")
       .addTo(map);
