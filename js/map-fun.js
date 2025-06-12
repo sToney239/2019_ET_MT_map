@@ -107,7 +107,19 @@ function validateQuestion() {
     return false;
   }
 }
-
+function naMessage() {
+  clearPopups();
+            const message = document.getElementById('message');
+            message.style.display = 'block';
+            message.style.opacity = 1;
+          
+            setTimeout(() => {
+              message.style.opacity = 0;
+              setTimeout(() => {
+                  message.style.display = 'none';
+              }, 800); // Wait for 800ms to complete fade-out
+            }, 500); // Show message for 500 ms
+}
 function buildLocationList(classmates) {
   for (const classmate of classmates.features) {
     const listings = document.getElementById('listings');
@@ -139,17 +151,7 @@ function buildLocationList(classmates) {
           if (feature.properties.city != "NA") {
             flyToCity(feature);
           } else {
-            clearPopups();
-            const message = document.getElementById('message');
-            message.style.display = 'block';
-            message.style.opacity = 1;
-          
-            setTimeout(() => {
-              message.style.opacity = 0;
-              setTimeout(() => {
-                  message.style.display = 'none';
-              }, 800); // Wait for 800ms to complete fade-out
-            }, 500); // Show message for 500 ms
+            naMessage();
           }
       }
     }
@@ -170,6 +172,10 @@ function flyToCity(currentFeature) {
     zoom: 4
   });   
   var current_city = name_data.features.filter(function (e) { return e.properties.city == currentFeature.properties.city; });
+  smoothPopup(currentFeature.geometry.coordinates, current_city)
+}
+
+function smoothPopup(coord, text){
   setTimeout(function () {
     popupStatus = 0;
     // const popup = new mapboxgl.Popup() 
@@ -184,8 +190,8 @@ function flyToCity(currentFeature) {
           duration: 300,
           easing: 'easeInSine',
           transform: 'scale'
-      }}).setLngLat(currentFeature.geometry.coordinates) 
-      .setHTML(popupText(current_city))
+      }}).setLngLat(coord) 
+      .setHTML(popupText(text))
       .setMaxWidth("1000px")
       .addTo(map);
   }, 500);
@@ -240,31 +246,25 @@ function mapInitializeAfterQuiz() {
       setAutocomplete: true,
       setFuzzyMatch: true,
       marker:false,
+      flyTo: false,
       zoom: 4,
       placeholder: '试试人名搜索? (缩写也行的)',
       mapboxgl: mapboxgl
     });
   map.addControl(geocoder);
-  geocoder.on('result', e => {
-    clearPopups();
-    popupStatus = 1;
-    // const popup = new mapboxgl.Popup() 
-    var current_city = name_data.features.filter(function (e2) { return e2.properties.city == e.result.city; });
-      new AnimatedPopup({
-        offset: 0,
-        openingAnimation: {
-            duration: 300,
-            easing: 'easeOutSine',
-            transform: 'scale'
-        },
-        closingAnimation: {
-            duration: 300,
-            easing: 'easeInSine',
-            transform: 'scale'
-        }}).setLngLat(e.result.geometry.coordinates)
-        .setHTML(popupText(current_city))
-        .setMaxWidth("1000px")
-        .addTo(map);
-    });
-  
+  geocoder.on('result', e1 => {
+    if (e1.result.city != "NA") {
+      clearPopups();
+      map.flyTo({
+        center: e1.result.geometry.coordinates,
+        zoom: 4
+      });   
+      var current_city = name_data.features.filter(function (e) { return e.properties.city == e1.result.city; });
+      smoothPopup(e1.result.geometry.coordinates, current_city)
+    } else {
+      naMessage();
+    }
+    geocoder.clear();
+    
+  });
 }
