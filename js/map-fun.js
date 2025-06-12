@@ -4,6 +4,7 @@ function dummy() {
 }
 
 function popupText(current_city) {
+  var { pinyin } = pinyinPro;
   let positions = {
       w1: -1,
       w2: -1
@@ -56,6 +57,7 @@ function popupText(current_city) {
   base_text += '</table>';
   return base_text;
 }
+
 function clearPopups() {
   const popups = document.getElementsByClassName("mapboxgl-popup");
   if (popups.length) {
@@ -64,6 +66,7 @@ function clearPopups() {
 }
 
 function localgeocoder(query) {
+  var { pinyin } = pinyinPro;
   var matchingFeatures = [];
   name_data.features.forEach(
     feature => {
@@ -85,7 +88,9 @@ function localgeocoder(query) {
 
   return Promise.resolve(matchingFeatures);
 };
+
 function validateQuestion() {
+  var { pinyin } = pinyinPro;
   var theAnswer = document.getElementById("question").value;
   //var correctAnswer = decodeURIComponent(escape(atob(questionsData.filter((t) => { return t.id == randQuest; })[0].answ)));
   var correctAnswer = atou(questionsData.filter((t) => { return t.id == randQuest; })[0].answ);
@@ -100,6 +105,7 @@ function validateQuestion() {
     return false;
   }
 }
+
 function buildLocationList(classmates) {
   for (const classmate of classmates.features) {
     const listings = document.getElementById('listings');
@@ -154,6 +160,7 @@ function buildLocationList(classmates) {
     });
   }
 }
+
 function flyToCity(currentFeature) {
   clearPopups();
   map.flyTo({
@@ -168,9 +175,9 @@ function flyToCity(currentFeature) {
       .setMaxWidth("1000px")
       .addTo(map);
   }, 500);
-  
 }
-function changeName() {
+
+function decryptName() {
   for(i in name_data.features){
     //name_data.features[i].properties.name = decodeURIComponent(escape(name_data.features[i].properties.name);
     //console.log(name_data.features[i].properties.name);
@@ -178,6 +185,7 @@ function changeName() {
     name_data.features[i].properties.city = atou(name_data.features[i].properties.city);
   }
 }
+
 function atou(b64) {
     let text = window.atob(b64);
     let stringAvecPourcentage = "";
@@ -193,7 +201,36 @@ function atou(b64) {
         stringAvecPourcentage += caractere;
       }
     }
-
     return decodeURIComponent(stringAvecPourcentage); 
   }
+
+function quizReRoll() {
+  var selectedElement = document.getElementById("qusetion-name");
+  newQuestionsData = questionsData.filter((t) => {
+    return t.id != randQuest;
+  })
+  randQuest = newQuestionsData[Math.floor(Math.random() * newQuestionsData.length)].id;
+  selectedElement.innerHTML = atou(questionsData.filter((t) => { return t.id == randQuest; })[0].ques);
+  popup.setDOMContent(divElement);
+}
+
+function mapInitializeAfterQuiz() {
+  buildLocationList(name_data);
+  map.setLayoutProperty("circle-layer", 'visibility', 'visible');
+  map.setLayoutProperty("circle-city-labels", 'visibility', 'visible');
+  map.addControl(
+    new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      localGeocoder: dummy,
+      localGeocoderOnly: true,
+      externalGeocoder: localgeocoder,
+      setAutocomplete: true,
+      setFuzzyMatch: true,
+      zoom: 5,
+      placeholder: '试试人名搜索? (缩写也行的)',
+      mapboxgl: mapboxgl
+    })
+  );
+
   
+}

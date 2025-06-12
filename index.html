@@ -9,7 +9,7 @@
   <script src='js/mapbox-gl.js'></script>
   <script src='js/mapbox-gl-geocoder.min.js'></script>
   <script src="js/pinyin-pro.js"></script>
-  <script src="js/mapbox-related.js"></script>
+  <script src="js/map-fun.js"></script>
   <script src='js/data.js'></script>
   <link rel='stylesheet' href='css/mapbox-gl-geocoder.css' type='text/css' />
   <link href='css/mapbox-gl.css' rel='stylesheet' />
@@ -21,7 +21,7 @@
 
   <div class='sidebar'>
     <div class='heading'>
-      <h1 id="h1Title">😋让我康康？</h1>
+      <h1 id="h1Title">😋让我康康!</h1>
     </div>
     <div id='listings' class='listings'></div>
     <div class='footing' onclick="window.open('https://docs.qq.com/form/page/DUlZVamFWVEFKdHdS')"
@@ -33,29 +33,28 @@
   <div id='map'></div>
   <div id="message">😭还是去问问本人吧</div>
   <script>
-    mapboxgl.accessToken = 'API_KEY_PLACEHOLDER';
-    
-    changeName();    
-    
-    var { pinyin } = pinyinPro;
-
+    mapboxgl.accessToken = 'API_KEY_PLACEHOLDER';  
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic3RvLW5leSIsImEiOiJja25tZG5jNXYwcXBrMnFtcHFjaDlrMjZ4In0.JO5JsnrxhONEUjuIQxTldg';    
+       
     if (window.matchMedia("(max-width: 600px)").matches) {
       document.getElementById('h1Title').innerText = "😋";
       document.getElementById('jumplink').innerText = "收集表";
     }
-
+    
     var map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [115, 35],
-      //interactive: false,
-      zoom: 4
+      center: [115, 35], zoom: 4
     });
     
+    map.on('style.load', () => {
+      map.setLayoutProperty('country-label', 'text-field', ['get', 'name_zh-Hans']);
+      map.setLayoutProperty('state-label', 'text-field', ['get', 'name_zh-Hans']);
+      map.setLayoutProperty('settlement-label', 'text-field', ['get', 'name_zh-Hans']);
+    });
+
     var randQuest = questionsData[Math.floor(Math.random() * questionsData.length)].id;
-    // var name = decodeURIComponent(escape(atob(questionsData[randQuest - 1].ques)));
     var name = atou(questionsData[randQuest - 1].ques);
-    //var name = decodeURIComponent(escape(atob(questionsData[randQuest - 1].ques)));
     const innerHtmlContent = `<div style="min-width: 800px;font-size: large;color : black;" >
             <h4 class="h4Class" align="center"  id="qusetion-name" >${name} </h4> </div>`;
     const divElement = document.createElement('div');
@@ -72,13 +71,22 @@
     inputText.style.cssText = 'text-align: center;';
     assignBtn.style.cssText = 'position: absolute;left: 40%; transform: translateX(-50%);border-radius: 16px;border: none;background-color: #55c2da;color: white;padding: 5px';
     buttonBox.style.cssText = 'height: 25px;';
-	
+
     divElement.innerHTML = innerHtmlContent;
     divElement.appendChild(inputText);
     divElement.appendChild(changeBtn);
     divElement.appendChild(assignBtn);
     divElement.append(buttonBox);
+
+    var viewcenter = (map.getBounds().toArray()[1][0] - map.getBounds().toArray()[0][0]) / 2 + map.getBounds().toArray()[0][0];
+    const quizBoard = new mapboxgl.Popup({ anchor: "center", className:"questionBox", closeOnClick: false, closeOnMove: true })
+      .setLngLat([viewcenter, map.getCenter().toArray()[1]])
+      .setDOMContent(divElement)
+      .setMaxWidth("1000px")
+      .addTo(map);
+
     divElement.querySelector(".inputBox").addEventListener("keyup", event => {
+      /// if hit enter key, submit the result
       if(event.key !== "Enter") return; 
       document.querySelector(".buttonSubmit").click();
       event.preventDefault();
@@ -86,54 +94,21 @@
 
     assignBtn.addEventListener('click', (e) => {  
       if (validateQuestion()) {
-        popup.remove();
-        buildLocationList(name_data);
-        map.setLayoutProperty("circle-layer", 'visibility', 'visible');
-        map.setLayoutProperty("circle-city-labels", 'visibility', 'visible');
-        map.addControl(
-          new MapboxGeocoder({
-            accessToken: mapboxgl.accessToken,
-            localGeocoder: dummy,
-            localGeocoderOnly: true,
-            externalGeocoder: localgeocoder,
-            setAutocomplete: true,
-            setFuzzyMatch: true,
-            zoom: 5,
-            placeholder: '试试人名搜索? (缩写也行的)',
-            mapboxgl: mapboxgl
-          })
-        );
+        quizBoard.remove();
+        mapInitializeAfterQuiz();
       } else {
         alert("答案错误？或者尝试换一题？");
       }
     });
     changeBtn.addEventListener('click', (e) => {
-      var selectedElement = document.getElementById("qusetion-name");
-      newQuestionsData = questionsData.filter((t) => {
-        return t.id != randQuest;
-      })
-      randQuest = newQuestionsData[Math.floor(Math.random() * newQuestionsData.length)].id;
-      //selectedElement.innerHTML = decodeURIComponent(escape(atob(questionsData.filter((t) => { return t.id == randQuest; })[0].ques)));
-      selectedElement.innerHTML = atou(questionsData.filter((t) => { return t.id == randQuest; })[0].ques);
-      popup.setDOMContent(divElement);
+      quizReRoll();
     });
-
-    var viewcenter = (map.getBounds().toArray()[1][0] - map.getBounds().toArray()[0][0]) / 2 + map.getBounds().toArray()[0][0];
     
-    const popup = new mapboxgl.Popup({ anchor: "center", className:"questionBox", closeOnClick: false, closeOnMove: true })
-      .setLngLat([viewcenter, map.getCenter().toArray()[1]])
-      .setDOMContent(divElement)
-      .setMaxWidth("1000px")
-      .addTo(map);
-
-
     map.on('load', function () {
+      decryptName(); 
       map.addSource('my-geojson', {
-        type: 'geojson',
-        data: name_data
+        data: name_data, type: 'geojson'
       });
-      
-
       name_data.features.forEach(function (name_datai, i) {
         name_datai.properties.id = i;
       });
@@ -155,14 +130,11 @@
         },
         layout: { 'visibility': 'none' }
       });
-
-
       map.addLayer({
         id: 'circle-city-labels',
         type: 'symbol',
         source: 'my-geojson',
         filter: [">", "n", 0],
-
         layout: {
           'text-field': '{city}',
           'text-size': 14,
@@ -183,7 +155,6 @@
 
       var exact_city = e.features[0].properties.city;
       var current_city = name_data.features.filter(function (e) { return e.properties.city == exact_city; });
-      
 
       const popup = new mapboxgl.Popup() 
         .setLngLat(coordinates) 
