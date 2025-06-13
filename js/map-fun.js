@@ -103,16 +103,30 @@ function validateQuestion() {
 }
 function naMessage() {
   clearPopups();
-  const message = document.getElementById('message');
-  message.style.display = 'block';
-  message.style.opacity = 1;
-          
-  setTimeout(() => {
-    message.style.opacity = 0;
-    setTimeout(() => {
-        message.style.display = 'none';
-    }, 800); // Wait for 800ms to complete fade-out
-  }, 500); // Show message for 500 ms
+  const toastContainer = document.getElementById("toastContainer");
+  const toast = document.createElement("div");
+  toast.className = "errorToast show";
+  toast.innerHTML = `
+      😭还是去问问本人吧
+  `;
+
+  toastContainer.appendChild(toast);
+
+  const toastTimeout = setTimeout(function() {
+      toast.classList.remove("show");
+      setTimeout(() => {
+          toastContainer.removeChild(toast);
+      }, 800); 
+  }, 1000); 
+
+  toast.querySelector(".close-btn").addEventListener("click", function() {
+      clearTimeout(toastTimeout);
+      toast.classList.remove("show");
+      setTimeout(() => {
+          toastContainer.removeChild(toast);
+      }, 1000);
+  });
+  
 }
 function buildLocationList(classmates) {
   for (const classmate of classmates.features) {

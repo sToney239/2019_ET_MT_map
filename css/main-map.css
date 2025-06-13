@@ -6,19 +6,30 @@ table {
 th {
   font-size: 15px;
 }
-
-#message {
-  display: none;
-  padding: 20px;
-  background-color: white;
-  color: black;
-  font-size: 20px;
-  border-radius: 5px;
-  width: 300px; 
-  text-align: center;
-  position: relative;
-  transition: opacity 2s ease-in-out;
-  opacity: 0;
+.toast-container {
+    position: fixed;
+    bottom: 40%;
+    left: 60%;
+    transform: translateX(-50%);
+    z-index: 1;
+}
+.errorToast {
+    visibility: hidden;
+    min-width: 250px;
+    font-size: 22px;
+    background-color: #C2534E;
+    color: white;
+    text-align: center;
+    border-radius: 4px;
+    padding: 25px;
+    margin-bottom: 10px;
+    opacity: 0;
+    transition: visibility 0s linear 1.5s, opacity 0.5s linear;
+}
+.errorToast.show {
+    visibility: visible;
+    opacity: 1;
+    transition: opacity 0.5s linear;
 }
 
 td {
