@@ -103,16 +103,16 @@ function validateQuestion() {
 }
 function naMessage() {
   clearPopups();
-            const message = document.getElementById('message');
-            message.style.display = 'block';
-            message.style.opacity = 1;
+  const message = document.getElementById('message');
+  message.style.display = 'block';
+  message.style.opacity = 1;
           
-            setTimeout(() => {
-              message.style.opacity = 0;
-              setTimeout(() => {
-                  message.style.display = 'none';
-              }, 800); // Wait for 800ms to complete fade-out
-            }, 500); // Show message for 500 ms
+  setTimeout(() => {
+    message.style.opacity = 0;
+    setTimeout(() => {
+        message.style.display = 'none';
+    }, 800); // Wait for 800ms to complete fade-out
+  }, 500); // Show message for 500 ms
 }
 function buildLocationList(classmates) {
   for (const classmate of classmates.features) {

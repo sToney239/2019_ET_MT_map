@@ -41,7 +41,6 @@
       document.getElementById('jumplink').innerText = "收集表";
     }
 
-    var { pinyin } = pinyinPro;
     let exact_city = null;
     let popupStatus = 0;
 
@@ -97,12 +96,15 @@
     });
 
     assignBtn.addEventListener('click', (e) => {  
-      if (validateQuestion()) {
+      setTimeout(() => {
+        if (validateQuestion()) {
         quizBoard.remove();
         mapInitializeAfterQuiz();
       } else {
         alert("答案错误？或者尝试换一题？");
       }
+      }, 80);
+      
     });
     changeBtn.addEventListener('click', (e) => {
       quizReRoll();
