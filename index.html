@@ -82,13 +82,18 @@
     divElement.append(buttonBox);
 
     var viewcenter = (map.getBounds().toArray()[1][0] - map.getBounds().toArray()[0][0]) / 2 + map.getBounds().toArray()[0][0];
-    const quizBoard = new mapboxgl.Popup({ anchor: "center", className:"questionBox", closeOnClick: false, closeOnMove: true })
+    const quizBoard = new mapboxgl.Popup({ anchor: "center", className:"questionBox", closeOnClick: false, closeOnMove: false })
       .setLngLat([viewcenter, map.getCenter().toArray()[1]])
       .setDOMContent(divElement)
       .setMaxWidth("1000px")
       .addTo(map);
 
-
+    divElement.querySelector(".inputBox").addEventListener("keyup", event => {
+      /// if hit enter key, submit the result
+      if(event.key !== "Enter") return; 
+      document.querySelector(".buttonSubmit").click();
+      event.preventDefault();
+    });
 
     assignBtn.addEventListener('click', (e) => {  
       setTimeout(() => {
