@@ -88,12 +88,7 @@
       .setMaxWidth("1000px")
       .addTo(map);
 
-    divElement.querySelector(".inputBox").addEventListener("keyup", event => {
-      /// if hit enter key, submit the result
-      if(event.key !== "Enter") return; 
-      document.querySelector(".buttonSubmit").click();
-      event.preventDefault();
-    });
+
 
     assignBtn.addEventListener('click', (e) => {  
       setTimeout(() => {
