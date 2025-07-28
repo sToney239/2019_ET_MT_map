@@ -153,7 +153,6 @@
         }
       });
     });
-    map.addControl(new mapboxgl.AttributionControl(), 'bottom-right');
     // click on circle and pop-up
     map.on('click', 'circle-layer', (e) => {
       const coordinates = e.features[0].geometry.coordinates.slice();
